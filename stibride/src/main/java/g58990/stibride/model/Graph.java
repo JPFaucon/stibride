@@ -1,0 +1,88 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package g58990.stibride.model;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+/**
+ *
+ * @author jp
+ */
+public class Graph {
+
+    private final Map<Integer, Node> nodes = new HashMap<>();
+    
+    public Map<Integer, Node> getNodes() {
+        return nodes;
+    }
+    
+    public void addNode(Integer id, Node node) {
+        nodes.put(id, node);
+    }
+
+    // getters and setters 
+    
+    public static Graph calculateShortestPathFromSource(Graph graph, Node source) {
+        graph.resetNodes();
+        source.setDistance(0);
+
+        Set<Node> settledNodes = new HashSet<>();
+        Set<Node> unsettledNodes = new HashSet<>();
+
+        unsettledNodes.add(source);
+
+        while (!unsettledNodes.isEmpty()) {
+            Node currentNode = getLowestDistanceNode(unsettledNodes);
+            unsettledNodes.remove(currentNode);
+            for (Entry < Node, Integer> adjacencyPair: 
+              currentNode.getAdjacentNodes().entrySet()) {
+                Node adjacentNode = adjacencyPair.getKey();
+                Integer edgeWeight = adjacencyPair.getValue();
+                if (!settledNodes.contains(adjacentNode)) {
+                    calculateMinimumDistance(adjacentNode, edgeWeight, currentNode);
+                    unsettledNodes.add(adjacentNode);
+                }
+            }
+            settledNodes.add(currentNode);
+        }
+        return graph;
+    }
+    
+    private void resetNodes() {
+        for (var entry : nodes.entrySet()) {
+            entry.getValue().resetNode();
+        }
+    }
+    
+    private static Node getLowestDistanceNode(Set < Node > unsettledNodes) {
+        Node lowestDistanceNode = null;
+        int lowestDistance = Integer.MAX_VALUE;
+        for (Node node: unsettledNodes) {
+            int nodeDistance = node.getDistance();
+            if (nodeDistance < lowestDistance) {
+                lowestDistance = nodeDistance;
+                lowestDistanceNode = node;
+            }
+        }
+        return lowestDistanceNode;
+    }
+    
+    private static void calculateMinimumDistance(Node evaluationNode,
+    Integer edgeWeigh, Node sourceNode) {
+      Integer sourceDistance = sourceNode.getDistance();
+      if (sourceDistance + edgeWeigh < evaluationNode.getDistance()) {
+          evaluationNode.setDistance(sourceDistance + edgeWeigh);
+          LinkedList<Node> shortestPath = new LinkedList<>(sourceNode.getShortestPath());
+          shortestPath.add(sourceNode);
+          evaluationNode.setShortestPath(shortestPath);
+      }
+  }
+}
+
